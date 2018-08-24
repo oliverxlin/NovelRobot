@@ -62,22 +62,26 @@ class NovelDB(object):
 
 
     """
-    获取指定小说的章节列表
+    获取指定小说的章节列表,field制定查询内容
     """
-    def get_chap_list(self,novel_name):
-        command = """select title from Chaps where novel_name = '{}' """
-        
-        try:
-            self.cursor.execute(command.format(novel_name))
-            
-            results = self.cursor.fetchall()
+    def get_chap_list(self,novel_name,field = ['*']):
 
-            chap_list = []
-            #获取每一行数据
-            for row in results:
-                chap_list.append(row[0])
+        fields = ",".join(field)
+        command = """select {} from Chaps where novel_name = '{}' """.format(fields,novel_name)
+        print(command) 
+        try:
+            self.cursor.execute(command)
+
+            results = self.cursor.fetchall()
+            
+            if len(field) == 1 and field[0] != "*":
+                chap_list = []
+                #获取每一行数据
+                for row in results:
+                    chap_list.append(row[0])
  
-            return chap_list
+                return chap_list
+            return results 
         except pymysql.Error as e:
             raise e
 
@@ -133,4 +137,4 @@ if __name__ == '__main__':
     db.connect()
 
     # db.write_chap(novel_name="测试",url="127.0.0.1",path="~/wechat_robot",title="测试")
-    db.get_chap_list("测试")
+    # print(db.get_chap_list("元尊",['number','title','url']))
